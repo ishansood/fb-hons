@@ -135,6 +135,7 @@ for i = experiments
     %% ok now my measures
      
     % bins for t-tests
+    % cps is an array of size 2*n where n is the number of subjects that are good - IS
     cps = subjTableHack(i, 'cp');
     
     % cut all bad gaze people and nonlearners from fixlvl table (needed for
@@ -163,12 +164,18 @@ for i = experiments
     % at which we can say they have learned the categories. targetTrial is
     % a vector containing this value for each subject in the experiment
     
+    % target Trial is the second colum of the CPS array which is the measure value - IS
     targetTrial = cps(:, 2) + 11; 
     
     
     % binSize and limits are used to make future calculations easier.
     % binSize is the number of trials per bin (varies by experiment) and
     % limits gives us the maximum trial number of each bin.
+    
+    % binsize is the max number of bins in i'th experiment
+    % limits is an array of size 15 where j'th element is j*binsize 
+    % e.g. (1:5)*3 --> [3,6,9,12,15] -IS
+    
     binSize = max(subjectTable.Trial(subjectTable.TrialBin == 1));
     limits = (1:15)*binSize;
      
@@ -190,12 +197,14 @@ for i = experiments
     % each participant)
     disp('stimulus vs buttons everyone')
     [h, p, ci, stats] = ttest(stims, buttons)
-    % not sure what h, p, ci, stats variables are. Maybe a new name for the variables - IS
+    % given the inputs of stims and buttons, h: is  whether we reject null hypothesis,
+    % p is 0.05 the standard, ci is confidence interval of the mean of (stims,buttons) and 
+    % stats just containts info about the test statistic  - IS
     
     % ratio of time on buttons:stimulus features
     disp('ratio')
     ratio = nanmean(buttons)/nanmean(stims)
-    % not sure what nammean function does. Its not recalled anywhere else in this script- IS
+    %  taking the mean - IS
     
     % proportion of time spent on stimulus features
     disp('stimulus feature rate')
@@ -209,8 +218,10 @@ for i = experiments
     % fixed-time experiments, it also compares across conditions.
     disp('attentionChange')
     [h, p, ci, stats] = attnChange(i, subjectTable, targetTrial, binSize, limits, badSubs, fixed)
- 
-    
+    % returns similar to T-Test, however it looks at T-Test of 1st block attention change vs CP block
+    %  attention change
+
+
     % post-error
     % we run post-error twice; once for p2 attention and once for p4
     % attention.

@@ -7,7 +7,7 @@
     %  Cognitive Science Lab, Simon Fraser University 
     %  Originally Created For: feedback
       
-    %  Reviewed: 
+    %  Reviewed: Ishan
     %  Verified: 
 
     
@@ -103,18 +103,29 @@ for i = experiments
     subjectTable.p4features = p4feat(:, 2);
     subjectTable.p4button = p4but(:, 2);
     
+    
     % remove nonlearners
+    % if CP is greater than 0 then we make subject table become a table filled only people who learned. - IS
     subjectTable = subjectTable(subjectTable.CP > 0, :);
     
     % and remove bad gaze people (identified in explvl tables)
+    % First we make a list of people who have "bad" gaze - IS
     gd = explvl.Subject(explvl.GazeDropper == 1);
     
+    % Now we iterate through that list, and delete those entries from subject table - IS
     for j = 1:length(gd)    % inefficient, I know... :(
         subjectTable(subjectTable.Subject == gd(j), :) = [];
     end
     
+    % At this point in time Subject table should only be filled with those that have both learned
+    % and have had good gaze during the experiment - IS
+    
+    
     % identify experiments as fixedtime or not (this will have an impact on
     % what analyses we do)
+    
+    % Made a flag in order to differentiate between whether we are working with the participants who
+    % had time constraints (fixed=1) or if they didn't (fixed=0) - IS
     fixed = 0;
     
     if  strcmp(i, "feedback2") || strcmp(i, "feedback3")
@@ -128,6 +139,7 @@ for i = experiments
     
     % cut all bad gaze people and nonlearners from fixlvl table (needed for
     % lower level attentional measures)
+   
     gd = explvl.GazeDropper == 1;
     nl = explvl.Learner == 0;
     cut = gd | nl;
@@ -140,7 +152,9 @@ for i = experiments
          
          fixlvl(fixlvl.Subject == j, :) = [];
     end
-
+    % ^ Similar to above where we cut our bad gaze and non learners, from subject table. 
+    % Now its just for fixlvl table - IS
+    % we are keeping the people who learned and who are non learners. 
     
     % for several of my analyses, I compare values in the first bin of
     % trials to what I call the learned bin. this is the bin containing the
@@ -149,40 +163,45 @@ for i = experiments
     % at which we can say they have learned the categories. targetTrial is
     % a vector containing this value for each subject in the experiment
     
-    targetTrial = cps(:, 2) + 11;
+    targetTrial = cps(:, 2) + 11; 
+    
     
     % binSize and limits are used to make future calculations easier.
     % binSize is the number of trials per bin (varies by experiment) and
     % limits gives us the maximum trial number of each bin.
     binSize = max(subjectTable.Trial(subjectTable.TrialBin == 1));
     limits = (1:15)*binSize;
-        
+     
     
     % basics makes plots and does ttests for all measures listed in
     % description above. for fixed-time experiments, it also compares
     % across conditions. summaryBinned is a table containing bin means for
     % all measures.
     summaryBinned = basics(i, fixed, subjectTable, targetTrial, limits);
-    
+    % calculates avareage of each bin using i, time fixation, specified limits, target trials and limits - IS
     
     % stimulus vs buttons during fb
     % stims will be time spent on stimulus features, buttons will be time
     % spent on feedback signals during the feedback phase of the experiment
     [stims, buttons] = stimulusVsButtons(i, subjectTable, fixed);   
+    % Making an array of stimulus vs buttons - IS 
     
     % t-test (paired samples...comparing stimulus to button values for
     % each participant)
     disp('stimulus vs buttons everyone')
     [h, p, ci, stats] = ttest(stims, buttons)
+    % not sure what h, p, ci, stats variables are. Maybe a new name for the variables - IS
     
     % ratio of time on buttons:stimulus features
     disp('ratio')
     ratio = nanmean(buttons)/nanmean(stims)
+    % not sure what nammean function does. Its not recalled anywhere else in this script- IS
     
     % proportion of time spent on stimulus features
     disp('stimulus feature rate')
     stimRate = nanmean(stims)/(nanmean(stims) + nanmean(buttons))
-    
+    % gives the rate of time participants looked at a stimulus diveded by the amount of time they looked at a 
+    % stimulus plus used their buttons - IS
     
     % attention change 
     % attnChange creates plots for each individual and runs a paired

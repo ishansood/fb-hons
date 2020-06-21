@@ -8,11 +8,11 @@ function relevance = shortFB(experiment, summaryTable, fixlvl)
     %  Cognitive Science Lab, Simon Fraser University 
     %  Originally Created For: feedback
       
-    %  Reviewed: 
+    %  Reviewed: Ishan
     %  Verified: 
 
     
-    %  PURPOSE: investigate what people look at whne feedback phases get so
+    %  PURPOSE: investigate what people look at when feedback phases get so
     %  short that they contain only 1, 2 or 3 fixations. 
  
     
@@ -41,6 +41,8 @@ function relevance = shortFB(experiment, summaryTable, fixlvl)
  
     % identify trials with fewer than 4 feedback phase fixations. fc4
     % stands for fixation count: phase 4
+    % Subjects will be only those with less then 4 feedback phase fixations, such that there
+    % is no repetition aka subjects are all unique - IS
     shortTrials = summaryTable(summaryTable.fc4 < 4, :);   
     subjects = unique(shortTrials.Subject);
     
@@ -53,7 +55,8 @@ function relevance = shortFB(experiment, summaryTable, fixlvl)
         
         % this gives us trial ID of all trials with a short enough fb
         % phase for the current subject
-        trials = shortTrials.Trial(shortTrials.Subject == subjects(i));
+        % Iterate through all unique participants and get their trial ID - IS
+        trials = shortTrials.Trial(shortTrials.Subject == subjects(i)); 
         
         % this gives us all fixations for the current subject
         subjectFixations = fixlvl(fixlvl.Subject == subjects(i), :);
@@ -69,6 +72,9 @@ function relevance = shortFB(experiment, summaryTable, fixlvl)
         end       
     
     end
+    % This for loop and the nested for loop just goes and gets the specific attributes 
+    % from the unique subjects and place them in a variable for further use - IS
+    
     
     % funcRelevance definitions:
         % 1, 2: relevant features
@@ -80,6 +86,7 @@ function relevance = shortFB(experiment, summaryTable, fixlvl)
     irrelevant = sum(fixations == 3);
     button = sum(fixations > 3);
    
+   % These names are all very similar and could be very easily misused, may want to make it more descriptive for readers - IS
     relevance = [relevant, irrelevant, button];
     
     
